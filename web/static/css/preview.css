@@ -1,0 +1,21 @@
+#my_num_row {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    vertical-align: middle;
+    flex: 0;
+}
+
+#headline {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    vertical-align: middle;
+    flex: 0;
+}

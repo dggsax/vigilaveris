@@ -1,0 +1,6 @@
+.ui-sortable tr {
+    cursor:pointer;
+}   
+.ui-sortable tr:hover {
+    background:rgba(216,247,255,0.45);
+}

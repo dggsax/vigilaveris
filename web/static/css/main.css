@@ -1,0 +1,112 @@
+html *
+{
+   font-family: Avenir;
+   border: 0;
+   align-content: center;
+}
+
+.prestaging-container {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    margin: auto;
+    width: 50%;
+}
+
+#main_area {
+    margin: auto;
+}
+
+.toggle_holder > div {
+    display: inline-block;
+    background-color: red;
+}
+
+/*
+******************************
+**                          **
+**    Deals with sliders    **
+**                          **
+******************************
+*/
+
+.slider-container {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: row;
+    display: inline-block;
+}
+
+.slider-item {
+    vertical-align: center;
+}
+
+label.slider-item {
+    margin: 0;
+}
+
+.slider-container > div > div > div {
+    width: 200px;
+}
+
+div.slider-item {
+    margin-top: 0;
+}
+
+/*
+********************************
+**                            **
+**    Deals with timeplots    **
+**                            **
+********************************
+*/
+
+
+.timeplot-container {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    display: inline-block;
+    flex-direction: row;
+}
+
+.timeplot-item {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+}
+
+/*
+*********************************
+**                             **
+**    Deals with draggables    **
+**                             **
+*********************************
+*/
+
+.autopilot-container {
+    width: 250px;   
+    padding: 10px;
+    border: 3px solid #333333;
+    border-radius: 10px;
+}
+
+/*
+*********************************
+**                             **
+**    Deals with draggables    **
+**                             **
+*********************************
+*/
+
+.draggable { 
+    padding: 0.5em; 
+}
+
+.custom-size-toggle.ui-toggle {
+    width: 1px;
+}

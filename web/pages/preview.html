@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+
+<head> 
+    <title>6.302.0x Plotter!</title>
+
+    <!-- STUFF FROM INDEX.HTML -->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css" integrity="sha384-" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/css/layouts/side-menu.css">
+    <link rel="stylesheet" href="../static/css/sortable.css">
+    <link rel="stylesheet" href="../static/css/jquery-ui.css">
+    <link rel="stylesheet" href="../static/css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/css/preview.css">f
+    <!-- END STUFF FROM INDEX.HTML -->
+
+    <!-- STUFF FROM ORIGINAL 6.302 -->
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/jquery.mobile.min.css">
+    <link rel="stylesheet" href="../static/css/gui_style.css">
+    <!-- END STUFF FROM ORIGINAL 6.302 -->
+
+    <script src="../static/js/socket.io.js"></script> 
+    <script src="../static/js/jquery.js"></script> 
+    <script src="../static/js/jquery-ui.js"></script>
+    <script src="../static/js/d3.min.js"></script>  
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/jquery.mobile.min.js"></script>
+    <script src="../static/js/preview.js"></script>
+
+    <link rel="icon" href="../static/favicon-angellist.ico">
+</head>
+<body>
+    <div class="row row-centered">
+        <div class="col-md-1">
+        <div class="col-md-1">
+        <h1>6.302x Plotting and Control Environment</h1>
+        <h3>version 5</h3>
+        </div>
+        </div>
+    </div>
+  <div class="row row-min">
+    <div class="col-md-1"> </div>
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-3">
+      <select id="serialport"></select>
+      <select id ="baud">
+        <option value=9600>9600</option>
+        <option value=14400>14400</option>
+        <option value=19200>19200</option>
+        <option value=28800>28800</option>
+        <option value=38400>38400</option>
+        <option value=57600>57600</option>
+        <option value=115200 selected>115200</option>
+      </select>
+      <button id="connect">Connect Serial</button> 
+    </div>
+    <div class="col-md-3">
+      <h3>Loop Headroom:</h3>
+      <p id="headroom"> NOT YET CONNECTED</p> 
+    </div>
+  </div>
+
+  <div class="row row-centered">
+    <div class="col-md-1"></div>
+    <div class="col-md-4">
+       <h3>Parameters:</h3>
+    </div>
+  </div>
+  <div class="row row-centered">
+    <div class="col-md-2"></div>
+    <div class="col-md-4">
+      <label for="csv-maker">Generate CSV?:</label>
+      <select name="csv-maker" id="csv" data-role="slider">
+         <option value=0>OFF</option>
+         <option value=1>ON </option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label for="alternator">Alternate Desired?:</label>
+      <select name="alternator" id="alternator" data-role="slider">
+        <option value=0>OFF</option>
+        <option value=1>ON</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+    </div>
+  </div>
+<div id="param_area"></div>
+<div id="plot_area"></div>
+<br>
+<div>
+  <button class="pure-button pure-button-primary" href="/pages/index.html">Back</button>
+</div>
+</body>
+</html>
+
+
+  <!--
+  Copyright (c) 2015,2016 Joseph D. Steinmeyer (jodalyst)
+
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->

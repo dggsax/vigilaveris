@@ -1,0 +1,18 @@
+MAIN_DIV:
+	* 	WIDTH = 80%, but stored as pixel value.
+	*	HEIGHT = whatever idk.
+	*	RESOLUTION = defines bit resolution of div.
+
+STUFF IN DIV:
+	*	x-coord
+	  -  pixels from left edge of MAIN_DIV
+	
+	*	y-coord
+	  -  pixels from top edge of MAIN_DIV
+	
+	* 	both x-coord and y-coord
+	  -  incremental and relative. i.e. x-coord = (integer value) / RESOLUTION * WIDTH
+	
+	*	height & width
+	  -  component width = (integer value) / RESOLUTION * WIDTH
+	  -  component height = (ingeger value) / RESOLUTION * WIDTH

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+  <script src="/static/socket.io.js"></script>
+  <script src="/static/timeseries.js" ></script>
+  <script src="/static/parallel.js" ></script>
+  <link rel="stylesheet" href="/static/gui.css">
+
+
+</head>
+<body>
+<p>Signal below is sent up from Python server via websocket</p>
+  <div >
+    <div id="plotbox"></div>
+  </div>
+</body>
+
+<script>
+var mouseX, mouseY;
+$(document).mousemove(function(e){
+        mouseX = e.pageX;
+        mouseY = e.pageY;
+});
+
+var MAX = 3;
+var MIN = -0.2;
+var PLOT_HEIGHT = 200;
+var PLOT_WIDTH = 300;
+var lit = [0,5,10,15,25];
+var LABELS = ["frequency", "decibels"];
+var plot;
+var plot2;
+var TYPE = "line";
+window.onload = function(){
+    var socket = io('http://localhost:3000');
+    var unique = 456;
+    // plot = new Time_Series("plotbox",'Microphone Input in dB',PLOT_WIDTH, PLOT_HEIGHT,20000,[-100,100],1,["green"],unique+1,socket);
+    plot2 = new Parallel_Plot(1024,LABELS,PLOT_WIDTH, PLOT_HEIGHT,MAX,MIN,"black",unique+1,TYPE);
+    // Updating!
+    if (socket != null){
+        socket.on("update_457",function(values){
+            plot2.step(values);
+        });
+    }
+}
+</script>
+
+</html>

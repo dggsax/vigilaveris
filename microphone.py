@@ -1,4 +1,3 @@
-
 #Copyright (c) 2017 Joseph D. Steinmeyer (jodalyst)
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal 
@@ -126,18 +125,6 @@ class SpectrumAnalyzer:
             output = False,
             input_device_index = 0,
             frames_per_buffer = self.CHUNK)
-    #     #Main Loop
-    #     self.loop()
-
-    # def loop(self):
-    #     try:
-    #         while True :
-    #             self.data = self.audioinput()
-    #             self.fft()
-
-    #     except KeyboardInterrupt:
-    #         self.pa.close()
-    #     print("End...")
 
     def audioinput(self):
         data = np.fromstring(self.stream.read(self.CHUNK),dtype=np.float32)
@@ -153,8 +140,6 @@ class SpectrumAnalyzer:
         y = np.fft.fft(self.data[self.START:self.START + self.N])    
         self.spec_y = [np.sqrt(c.real ** 2 + c.imag ** 2) for c in y]
         return self.spec_y
-
-
 
 @app.route('/')
 def index():

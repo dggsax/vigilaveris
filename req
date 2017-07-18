@@ -2,3 +2,5 @@ flask
 flask-socketio
 pyserial
 eventlet
+pyaudio
+numpy

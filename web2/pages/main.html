@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+
+<head>
+	<!-- Title -->
+    <title>6.302.0x Plotter!</title>
+
+    <!-- CSS files -->
+    <link rel="stylesheet" href="../static/css/jquery-ui.css">
+    <link rel="stylesheet" href="../static/css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/css/gui_style.css">
+    <link rel="stylesheet" href="../static/css/jquery.mobile.css">
+    <link rel="stylesheet" href="../static/css/main.css">
+
+    <!-- JS files -->
+    <script src="../static/js/socket.io.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/jquery-ui.js"></script>
+    <script src="../static/js/jquery.shapeshift.js"></script>
+    <script src="../static/js/d3.min.js"></script>
+    <script src="../static/js/jquery.mobile.min.js"></script>
+    <script src="../static/js/slider.js"></script>
+	<script src="../static/js/toggle.js"></script>
+	<script src="../static/js/locktoggle.js"></script>
+	<script src="../static/js/timeplot.js"></script>
+    <script src="../static/js/time_series.js"></script>
+    <script src="../static/js/parallel.js"></script>
+    <!-- <script src="../static/js/virtualjoystick.js"></script> -->
+    <script src="../static/js/main.js"></script>
+
+
+    <!-- Page Tab Icon -->
+    <link rel="icon" href="../static/favicon-angellist.ico">
+</head>
+<body>
+	<div style="width: 85%;margin:auto;">
+		<!-- Header -->
+		<div>
+			<h1>6.302x Plotting and Control Environment</h1>
+			<h3>version 5</h3>
+		</div>
+		<!-- Prestaging -->
+		<div class="prestaging-container">
+			<!-- For choosing the serial port -->
+			<select id="serialport" class="prestaging-item"></select>
+			<!-- Select the baud -->
+			<select id ="baud" class="prestaging-item">
+				<option value=9600>9600</option>
+				<option value=14400>14400</option>
+				<option value=19200>19200</option>
+				<option value=28800>28800</option>
+				<option value=38400>38400</option>
+				<option value=57600>57600</option>
+				<option value=115200 selected>115200</option>
+			</select>
+			<!-- Button to connect the serial and build page -->
+			<button id="connect" class="prestaging-item">Connect Serial</button>
+		</div>
+		<!-- end prestaging -->
+
+		<div>
+		  <h3>Loop Headroom:</h3>
+		  <p id="headroom"> NOT YET CONNECTED</p>
+		</div>
+
+		<div class="row row-centered">
+			<h3>Parameters:</h3>
+		</div>
+		<div>
+			<!-- Generate the generate CSV toggle -->
+			<div id="generate_csv"></div>
+			<!-- Generate the lock toggle which controls draggability of the page -->
+			<div id="lock"></div>
+		</div>
+
+
+		<!-- where the magic happens :) -->
+		<div id="main_area" style="margin:auto;">
+      
+    </div>
+
+	</div>
+
+  <script>
+    $(document).ready(function() {
+      $(".container").shapeshift();
+    })
+  </script>
+</body>
+</html>

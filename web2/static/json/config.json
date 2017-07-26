@@ -1,0 +1,63 @@
+///////////////////////////////////////////////
+//                                           //
+//                CONFIG FILE                //
+//                                           //
+///////////////////////////////////////////////
+
+{
+    "slider" : {
+        "name" : [
+            "ToneGenerator"
+        ],
+        "low" : [
+            -1000,
+        ],
+        "high" : [
+            1000,
+        ],
+        "resolution" : [
+            1,
+        ],
+    }, // End of Sliders
+    "timeseries" : {
+        "title" : [
+            "dB",
+        ],
+        "low" : [
+            "0",
+        ],
+        "high" : [
+            "10",
+        ],
+        "color" : [
+            "green",
+        ],
+    }, // End of Timeseries
+    "parallel" : {
+        "title" : [
+            "FFT",
+            "AveragedFFT",
+        ],
+        "low" : [
+            "-100",
+            "-100",
+        ],
+        "high" : [
+            "10000",
+            "10000",
+        ],
+        "color" : [
+            "red",
+            "green",
+        ],
+        "type" : [
+            "line",
+            "line",
+        ],
+        "kinsie_scale_rating" : [
+
+            "5",
+            "4",
+        ],
+    }, // End of Parallel
+}

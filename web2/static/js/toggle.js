@@ -1,4 +1,25 @@
-// Associated with general toggles
+////////////////////////////////////////////////////////////////////////////////////
+//                                                                                //
+//    Toggle handler                                                              //
+//                                                                                //
+//       Job: Builds a toggle, and handles it's state for backend and frontend    //
+//                                                                                //
+//       What it needs to do:                                                     //
+//             * build toggle                                                     //
+//             * listen for toggle modification                                   //
+//             * tell server that toggle hath been toggled                        //
+//                                                                                //
+////////////////////////////////////////////////////////////////////////////////////
+
+// Notes for fixing it:
+// There were a few things wrong, firstly I guess was the naming scheme for things
+// with the toggler (the thing that activates/disables autopilot). Then, would run into weird
+// socket issues. When appending socket as an argument from slider for each new toggle, it would
+// work the first time, but then would be considered as null. Fixed by defining the socket within
+// the build_slider_autopilot function in slider.js. However, this should not have been necessary.
+// However pt. 2, Javascript is weird and sometimes things just don't be like they need to be...
+// Also, for some reason the if statement on line 39 really doesn't make a difference? confusion.
+
 function Toggle(div_id,title,names,unique,socket=null){
     var div_id = String(div_id);
     var title = String(title);
@@ -8,23 +29,20 @@ function Toggle(div_id,title,names,unique,socket=null){
     var socket = socket;
     var built = false;
     var setup = function(){
-        $("#"+div_id).append("<div class ='toggle_holder' id=\""+div_id+unique+"_holder\"></div>");
-        $("#"+div_id+unique+"_holder").append("<label for =\"" + div_id+unique+"toggler"+"\">"+title+": </label>");
-        $("#"+div_id+unique+"_holder").append("<select name=\""+ div_id+unique+"toggler" +"\" id=\""+div_id+unique+"toggle"+"\" data-role=\"slider\"><option value=\""+names[0]+"\">"+names[0]+"</option><option value=\""+names[1]+"\">"+names[1]+" </option></select>");
-        //$("#"+div_id+unique+"_holder").append('<label for="slider-1">Input slider:</label><input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />');
+        $("#"+div_id+'_holder').append("<div class ='toggle_holder' id=\""+div_id+"_toggler_holder\"></div>");
+        $("#"+div_id+"_toggler_holder").append("<label for =\"" + div_id+"_toggler"+"\">"+title+": </label>");
+        $("#"+div_id+"_toggler_holder").append("<select name=\""+ div_id+"_toggler" +"\" id=\""+div_id+"_toggler"+"\" data-role=\"slider\"><option value=\""+names[0]+"\">"+names[0]+"</option><option value=\""+names[1]+"\">"+names[1]+" </option></select>");
         built = true;
-        $("#"+div_id+unique+"_holder").trigger("create");
-        console.log("just enjanced");
-        console.log("#"+div_id+unique+"toggle");
-
+        $("#"+div_id+"_toggler_holder").trigger("create");
+        console.log("#"+div_id+"_toggler");
     }
-    setup();
+    if ( ! built ) { 
+        setup();
+    };
     if (socket != null){
-        socket.on("update_"+unique,function(va){console.log("hit");if (built){$('#'+div_id+unique+"toggle").val(va).slider('refresh');}});
-        $('#'+div_id+unique+"toggle").on('change',function(){
-            console.log('fuck this fucking shit')
-            socket.emit('reporting_'+unique, {'unique':unique, 'div': div_id, 'data':$(this).val()});
-            console.log('reporting_'+unique, {'unique':unique, 'div': div_id, 'data':$(this).val()});
+        $('#'+div_id+"_toggler").on('change',function(){
+            console.log('reporting_'+unique, {'unique':unique, 'div': div_id+'_holder', 'data':$(this).val()});
+            socket.emit('reporting_'+unique, {'unique':unique, 'div': div_id+'_holder', 'data':$(this).val()});
         });
     };
 };

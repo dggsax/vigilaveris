@@ -36,7 +36,6 @@ var TYPE = "line";
 window.onload = function(){
     var socket = io('http://localhost:3000');
     var unique = 456;
-    // plot = new Time_Series("plotbox",'Microphone Input in dB',PLOT_WIDTH, PLOT_HEIGHT,20000,[-100,100],1,["green"],unique+1,socket);
     plot2 = new Parallel_Plot(1024,LABELS,PLOT_WIDTH, PLOT_HEIGHT,MAX,MIN,"black",unique,TYPE);
     // Updating!
     if (socket != null){

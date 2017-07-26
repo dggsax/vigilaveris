@@ -1,8 +1,10 @@
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, make_response
 from flask_socketio import SocketIO, emit, join_room, leave_room,close_room, rooms, disconnect
 import glob
 import json
 import math
+import numpy as np
+import pyaudio
 from threading import Thread, Lock
 import time
 import serial
@@ -404,7 +406,7 @@ def dataThread():
 # def writeUpdates(tag,val):
 #     global serialPort
 #     global serialLock
-                
+        
 #     string_to_write = tag+' %0.2f\n' %(float(val))
 #     print(string_to_write)
 #     if serialConnected:
@@ -427,13 +429,13 @@ def dataThread():
 #     global serialselection
 #     print ('serial port changed to %s' %(port))
 #     serialselection = port
-    
+
 # @socketio.on('baud select')
 # def action(baud):
 #     global baudselection
 #     print ('baud changed to %s' %(baud))
 #     baudselection = baud
-                
+        
 # @socketio.on('serial connect request')
 # def connection(already_built):
 #     global serialConnected
@@ -523,12 +525,20 @@ def dataThread():
 @app.route('/')
 def index():
     global thread
+    global fft
     print ("A user connected")
     if thread is None:
         thread = Thread(target=dataThread)
         thread.daemon = True
         thread.start()
+    fft = Thread(target=micThread)
+    fft.daemon = True
+    # fft.start()
     return render_template('pages/main.html')
+
+@app.route('/generate')
+def configGenerate():
+    return render_template('pages/index.html')
 
 @socketio.on('reporting')
 def action(content):
@@ -547,7 +557,135 @@ def action(content):
     # Emit Variables
     socketio.emit('autopilot_{}'.format(unique),data=(div,data))
 
+@app.route("/simple.png")
+def simple():
+    import datetime
+    import io
+    import random
 
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from matplotlib.figure import Figure
+    from matplotlib.dates import DateFormatter
+
+    try:
+        while True:
+            fig=Figure()
+            ax=fig.add_subplot(111)
+            x=[]
+            y=[]
+            now=datetime.datetime.now()
+            delta=datetime.timedelta(days=1)
+            for i in range(10):
+                x.append(now)
+                now+=delta
+                y.append(random.randint(0, 1000))
+            ax.plot_date(x, y, '-')
+            ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
+            fig.autofmt_xdate()
+            canvas=FigureCanvas(fig)
+            png_output = io.BytesIO()
+            canvas.print_png(png_output)
+            response=make_response(png_output.getvalue())
+            response.headers['Content-Type'] = 'image/png'
+            return response
+            time.sleep(.001)
+            fig.cla()
+    except:
+        print('welp')
+
+def micThread():
+    # First time setup
+    first_time = True
+    if ( first_time ):
+        wow = SpectrumAnalyzer()
+        first_time = False
+
+    # Etc
+    unique = 450
+    burst_duration = 1
+    counter = 0
+    toggle_count = 500
+    on_state = True
+    name = 'joe'
+    while True:
+        counter +=1
+        if counter%burst_duration == 0:
+            socketio.emit('update_{}'.format(unique),wow.fft())
+        if counter%toggle_count == 0:
+            counter = 0
+            if on_state:
+                print("OFF")
+            else:
+                print("ON")
+            on_state = not on_state
+        time.sleep(0.001)
+
+class SpectrumAnalyzer:
+    # Start Pyaudio
+    p = pyaudio.PyAudio()
+
+    # Select Device
+    device = p.get_device_info_by_host_api_device_index(0, 0)
+
+    # Device Specs
+    CHUNK = 1024
+    CHANNELS = int(device['maxInputChannels'])
+    FORMAT = pyaudio.paFloat32
+    RATE = int(device['defaultSampleRate'])
+    START = 0
+    N = CHUNK
+
+    wave_x = 0
+    wave_y = 0
+    spec_x = 0
+    spec_y = 0
+    data = []
+
+    def __init__(self):
+        self.pa = pyaudio.PyAudio()
+        self.stream = self.pa.open(
+            format = self.FORMAT,
+            channels = self.CHANNELS, 
+            rate = self.RATE,
+            input = True,
+            output = False,
+            input_device_index = 0,
+            frames_per_buffer = self.CHUNK)
+
+    def audioinput(self):
+        data = np.fromstring(self.stream.read(self.CHUNK),dtype=np.float32)
+        # ret = self.stream.read(self.CHUNK)
+        # ret = np.fromstring(ret, dtype=np.float32)
+        return data
+
+    def fft(self):
+        self.data = self.audioinput()
+        self.wave_x = range(self.START, self.START + self.N)
+        self.wave_y = self.data[self.START:self.START + self.N]
+        self.spec_x = np.fft.fftfreq(self.N, d = 1.0 / self.RATE)  
+        y = np.fft.fft(self.data[self.START:self.START + self.N])    
+        self.spec_y = [np.sqrt(c.real ** 2 + c.imag ** 2) for c in y]
+        return self.spec_y
 
 if __name__ == '__main__':
     socketio.run(app, port=3000, debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

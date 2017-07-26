@@ -25,7 +25,6 @@
 	<script src="../static/js/timeplot.js"></script>
     <script src="../static/js/time_series.js"></script>
     <script src="../static/js/parallel.js"></script>
-    <!-- <script src="../static/js/virtualjoystick.js"></script> -->
     <script src="../static/js/main.js"></script>
 
 
@@ -68,7 +67,7 @@
 		</div>
 		<div>
 			<!-- Generate the generate CSV toggle -->
-			<div id="generate_csv"></div>
+			<div id="freeze"></div>
 			<!-- Generate the lock toggle which controls draggability of the page -->
 			<div id="lock"></div>
 		</div>
@@ -76,15 +75,32 @@
 
 		<!-- where the magic happens :) -->
 		<div id="main_area" style="margin:auto;">
+
+		<!-- <div id="placehere"></div> -->
       
     </div>
 
 	</div>
 
-  <script>
-    $(document).ready(function() {
-      $(".container").shapeshift();
-    })
-  </script>
+	<script>
+		// var built = false;
+		// if ( ! built ) {
+		// 	console.log("Hi! I'm building for the first time");
+		// 	var elem = document.createElement("img");
+		// 	$(elem).attr("id","photo")
+		// 	elem.src = "/simple.png";
+		// 	document.getElementById("placehere").append(elem);
+		// 	built = true
+		// }
+		// $("#photo").on('load', function() {
+		// 	// setTimeout(function(){
+		// 		console.log("I should be here!");
+		// 		$("#photo").attr("src", "/simple.png?" + new Date().getTime());
+		// 	// }, 50);
+		// });
+		$(document).ready(function() {
+			$(".container").shapeshift();
+		})
+	</script>
 </body>
 </html>

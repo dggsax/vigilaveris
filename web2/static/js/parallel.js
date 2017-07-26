@@ -182,7 +182,35 @@ function Parallel_Plot(div_id,name,num_values,labels,plot_width,plot_height,max_
       }
       var element = d3.select(".x.axis").node();
       var bottom_padding = element.getBoundingClientRect().height;
-
+  this.step = function (values) {
+    var newData = [];
+    // values = [3,4,5,6,7];
+    for (i = 0; i < values.length; i++) {
+      // console.log(values[i]);
+      newData[i] = scaler(values[i]);
+    }
+    // console.log("original: " + values);
+    if (type == "bar") {
+      d3.select("#svg_for_plotbox" + unique).selectAll(".bar")
+        .attr("transform", "scale(1,-1)")
+        .attr("height", function (d, i) {
+          console.log("i: " + newData[i]);
+          return (newData[i] + "px");
+        })
+        .attr("y", function (d, i) {
+          return -1 * plot_height + margin.bottom;
+        });
+    }
+    else if (type == "line") {
+      d3.select("#svg_for_plotbox" + unique).selectAll("circle")
+        .attr("cy", function (d, i) { return (newData[i] + margin.bottom);});
+      for (i = 0; i < newData.length - 1; i++) {
+        d3.select("#svg_for_plotbox" + unique).select("#line" + i)
+          .attr("y1", newData[i] + margin.bottom)
+          .attr("y2", newData[i + 1] + margin.bottom);
+      }
+    }
+  }
   this.step_p = function(values){
     var newData = [];
     for(i = 0; i<values.length;i++){

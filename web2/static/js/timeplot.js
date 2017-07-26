@@ -46,11 +46,13 @@ function build_plots(){
         var type = plots[i]['type']//parallel or time series
         var g_type = plots[i]['graph_type']; //bar or line
         if(type == "P"){
-          plot_handlers[name] = new Parallel_Plot(name+"_div",name,datapoints.length,datapoints,PLOT_WIDTH,PLOT_HEIGHT,max,min,String(color),plot_count + "_p",g_type);
+            console.log(name);
+            plot_handlers[name] = new Parallel_Plot(name+"_div",name,datapoints.length,datapoints,PLOT_WIDTH,PLOT_HEIGHT,max,min,String(color),plot_count + "_p",g_type);
         }
         else{
+            console.log(name);
         // plot_handlers[name] = new LWChart(name,"red",[min,max],PLOT_HEIGHT,PLOT_WIDTH,datapoints);
-        plot_handlers[name] = new Time_Series(name+"_div",name,PLOT_WIDTH,PLOT_HEIGHT,datapoints,[min,max],1,[color], plot_count, socket=null);
+            plot_handlers[name] = new Time_Series(name+"_div",name,PLOT_WIDTH,PLOT_HEIGHT,datapoints,[min,max],1,[color], plot_count, socket=null);
         }
     }
 };

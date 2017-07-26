@@ -29,7 +29,6 @@ $(document).on("mouseleave", ".fa-cog", function(){
 
 $(document).on("click",".fa-cog",function(){
     build_slider_autopilot(this.id);
-    // d3.select("#main_area").select("#"+this.id+"_autopilot").style("position","absolute").style("z-index","999999").style("background-color",("#f4f4f4"));
 });
 
 // Update value of input field when the enter key is selected
@@ -53,6 +52,15 @@ var datapoints = 100
 var isActive;
 $(document).on('pageinit', function() {
 
+    //Handle sockets with server:
+    var socket = io('http://localhost:3000');
+
+    ////////////////////////
+    //                    //
+    //     Extra Stuff    //
+    //                    //
+    ////////////////////////
+
     isActive = true; //used for turning off plot updates when page not in focus
     window.onfocus = function () {
       console.log("IN FOCUS");
@@ -66,8 +74,33 @@ $(document).on('pageinit', function() {
       $('.sbs').css('background-color',"#ffde46");
     };
 
-    //Handle sockets with server:
-    var socket = io('http://localhost:3000');
+    ////////////////////////////
+    //                        //
+    //    PRESTAGING STUFF    //
+    //                        //
+    ////////////////////////////
+
+    // Receive list of available serials from server
+    socket.on('serial list display', function(portlist){
+        $("#serialport").children().remove().end();
+        $.each(portlist, function (i, item) {
+            $('#serialport').append($('<option>', {
+                value: i,
+                text : item.comName
+            }));
+            $('#serialport option[value='+i+']').prop('selected','selected').change();
+        });
+    });
+
+    // update serial port upon selection, let server know
+    $('#serialport').change(function(){
+        socket.emit('serial select', $('#serialport option:selected').text());
+    });
+
+    // update baud rate upon selection, let server know
+    $('#baud').change(function(){
+        socket.emit('baud select', $('#baud option:selected').text());
+    });
 
     //Server sending socket containing list of valid serial ports:
     socket.on('serial list display', function(portlist){
@@ -84,92 +117,88 @@ $(document).on('pageinit', function() {
     //Connect/Disconnect to Serial Port
     $('#connect').click(function(){
         hootenanny();
-        $("#drag_container").shapeshift();
-        $("#drag_container").trigger("ss-destroy");
+        // $("#drag_container").shapeshift();
+        // $("#drag_container").trigger("ss-destroy");
         if($(this).text() != 'Connected (Click to Disconnect)'){
             socket.emit('serial connect request',{state: ALREADY_BUILT});
             isActive = true;
         }else{
             socket.emit('serial disconnect request');
         }
-
-        //stepping the graphs, currently feeds them mouse coordinates
-        var mouseX, mouseY;
-        $(document).mousemove(function(e){
-          mouseX = e.pageX;
-          mouseY = e.pageY;
-        });
-        plot_count = 0;
-        timer = setInterval(function(){
-            plot_count = 0;
-            $.each(plots, function(index, value){
-                plot_count += 1;
-            });
-            for (var i=0; i<plot_count;i++){
-                var name = plots[i]['name'];
-                switch(plot_handlers[name].constructor.name){
-                    case "Time_Series":
-                        if(i%2 == 0){
-                            plot_handlers[name].step([mouseX]);
-                        }
-                        else{
-                            plot_handlers[name].step([mouseY]);
-                        }
-                        break;
-                    case "Parallel_Plot":
-                        plot_handlers[name].step_p([mouseX, mouseY,300]);
-                        break;
-                    default:
-                        console.log("neither!");
-                        break;
-                }
-            }
-        }, 10);
+        // below is wei's stuff.
+        // //stepping the graphs, currently feeds them mouse coordinates
+        // var mouseX, mouseY;
+        // $(document).mousemove(function(e){
+        //   mouseX = e.pageX;
+        //   mouseY = e.pageY;
+        // });
+        // plot_count = 0;
+        // timer = setInterval(function(){
+        //     plot_count = 0;
+        //     $.each(plots, function(index, value){
+        //         plot_count += 1;
+        //     });
+        //     for (var i=0; i<plot_count;i++){
+        //         var name = plots[i]['name'];
+        //         switch(plot_handlers[name].constructor.name){
+        //             case "Time_Series":
+        //                 if(i%2 == 0){
+        //                     plot_handlers[name].step([mouseX]);
+        //                 }
+        //                 else{
+        //                     plot_handlers[name].step([mouseY]);
+        //                 }
+        //                 break;
+        //             case "Parallel_Plot":
+        //                 plot_handlers[name].step_p([mouseX, mouseY,300]);
+        //                 break;
+        //             default:
+        //                 console.log("neither!");
+        //                 break;
+        //         }
+        //     }
+        // }, 10);
     });
 
-    //Update switch to connected or disconnected based on return socket from server
+    // Update #connect button to connected on return socket from server
     socket.on('serial connected', function(){
         $('#connect').text('Connected (Click to Disconnect)');
     });
+    // Update #connect button to connected on return socket from server
     socket.on('serial disconnected', function(){
         console.log("oh yeah disconnecting!");
         $('#connect').text('Disconnected (Click to Connect)');
     });
 
-    socket.on('state toggle', function(val){
-        console.log("toggling");
-        $('#'+TOGGLE_PARAM).val(parseFloat(val)).slider('refresh');
-    });
-
-    $('#alternator').change(function(){
-        console.log("desiring alternating!");
-        socket.emit('alternate state', $(this).val());
-    });
-
     // Build default toggles
     var toggle_lock = new lockToggle("lock","Page Lock",["Locked","Unlocked"],69,socket);
-    var toggle_csv = new Toggle("generate_csv","Generate CSV?",["OFF","ON"],420,socket);
+    var toggle_freeze = new Toggle("freeze","Freeze Page?",["OFF","ON"],420,socket);
 
-    //update serial port upon selection:
-    $('#serialport').change(function(){
-    console.log("serialport selected");
-        socket.emit('serial select', $('#serialport option:selected').text());
+    // Send socket to freeze page when #freeze switch is toggled
+    $('#freeze').change(function(){
+        console.log("freezing page");
+        socket.emit('freeze');
     });
 
-    //upadte baud rate upon selection:
-    $('#baud').change(function(){
-        socket.emit('baud select', $('#baud option:selected').text());
+    // When the page is locked/unlocked
+    $('#lock').change(function(){
+        console.log("lock status changed");
+        var unique = 696969;
+        var val = $(this).children().children().eq(1).val();
+        socket.emit('toggle_update_'+unique,val)
     });
 
-    /////////////////////////////////////////////////////
-    //                                                 //
-    //    THIS IS WHERE YOU MAKE THE PREVIEW HAPPEN    //
-    //                                                 //
-    /////////////////////////////////////////////////////
+    ///////////////////////////////////////////
+    //                                       //
+    //    THIS IS WHERE THE PAGE IS BUILT    //
+    //                                       //
+    ///////////////////////////////////////////
 
-    // Insert the stuff here
     // socket.on('startup',function(msg){
     function hootenanny(){
+        // Clean the Page
+        // QUESTION: Why do they need separate containers? And why does one focus on
+        // IDs and the other with classes?
         $("#main_area").empty(); //do it this way because jquery needs to be cleaned properly
         var slider_container = d3.select("#main_area").append("div").attr("id","drag_container");
         var container = d3.select("#main_area").append("div").attr("class","container_graphs");
@@ -177,70 +206,91 @@ $(document).on('pageinit', function() {
         sliders = new Array();
         plots = new Array();
         plot_handlers = new Array();
-        // msg = msg+''; //convert to string...stupid I know.
-        msg = "&C&S~Gonzo~commname~0~69~5&A~Gonzo~2&S~Joe~commname~0~69~5&S~Wei~commname~0~100~1&S~Jesus~commname~3~5~1&S~Wow~commname~0~3~4&T~Hehe~U1~1~5~blue&T~Joe~F4~0~100~red&T~Everything~U1~0~10~yellow&T~Help~U1~0~255~green&T~Wow~S4~2~5~black&P~Something~U1~0~10000~x,y,static~line~blue&"
-        // msg = "&A~DesiredAngV~5&C&S~Direct~O~0~5.0~0.1&S~DesiredAngV~A~-1~1~0.1&T~AngleV~F4~0~2.5&T~BackEMF~F4~0~5&T~MCmd~F4~0~5&H~4&"
-        var sets = msg.split("&");
-        var duration = 100; //default
-        for (var i = 0;  i < sets.length; i++){
-            var test = sets[i].split("~");
-            if (test[0] == "D"){
-                duration = parseFloat(test[1]);
+
+        ////////////////////////////
+        //                        //
+        //    JSON INTERACTION    //
+        //                        //
+        ////////////////////////////
+        
+        // $.getJSON( "/static/json/test.json", function( data ) {
+        //     console.log( "success" );
+        //   // console.log("it's so lit y'all");
+        //   // var items = [];
+        //   // $.each( data, function( key, val ) {
+        //   //   // items.push( "<li id='" + key + "'>" + val + "</li>" );
+        //   //   console.log(key,val);
+        //   // });
+         
+        //   // $( "<ul/>", {
+        //   //   "class": "my-new-list",
+        //   //   html: items.join( "" )
+        //   // }).appendTo( "body" );
+        // });
+
+        function loadJSON(callback) {
+            var xobj = new XMLHttpRequest();
+            xobj.overrideMimeType("application/json");
+            xobj.open('GET', './config.json', true);
+            xobj.onreadystatechange = function() {
+                if (xobj.readyState == 4 && xobj.status == "200") {
+                    // .open will NOT return a value but simply returns undefined in async mode so use a callback
+                    callback(xobj.responseText);
+                }
             }
+            xobj.send(null);
         }
+        loadJSON(function(response) {
+            // Do Something with the response e.g.
+            jsonresponse = JSON.parse(response);
+            console.log(jsonresponse)
+            // Assuming json data is wrapped in square brackets as Drew suggests
+            //console.log(jsonresponse[0].name);
 
-        for (var i = 0;  i < sets.length; i++){
-            console.log(sets[i]);
-            var test = sets[i].split("~");
-            console.log(test);
-            switch (test[0][0]){
-                case "A":
-                    alt=true;
-                    TOGGLE_PARAM = test[1];
-                    break;
-                case "C":
-                    csv=true;
-                    break;
-                case "S":
-                    var name = test[1];
-                    var lo = test[3];
-                    var hi = test[4];
-                    var res = test[5];
-                    slider_generate(name,lo,hi,res);
-                    break;
-                case "T":
-                    var name = test[1];
-                    var lo = test[3];
-                    var hi = test[4];
-                    var color = test[5];
-                    var type = test[0];
-                    plot_generate(name,parseFloat(lo),parseFloat(hi),duration,color,type);
-                    break;
-                case "H":
-                    HEADROOM_PRESENT = true;
-                    break;
-                case "P":
-                    var name = test[1];
-                    var lo = test[3];
-                    var hi = test[4];
-                    var testing = test[5].split(",");
-                    var label_names = [];
-                    var color = test[7];
-                    var type = test[0];
-                    for(z=0; z < testing.length;z++){
-                      label_names[z] = testing[z];
-                    }
-                    graph_type = test[6];
-                    plot_generate(name,parseFloat(lo),parseFloat(hi),label_names,color,type,graph_type);
-                    break;
+        });
+        // for (var i = 0;  i < sets.length; i++){
+        //     // // Optional
+        //     // console.log(sets[i]);
+        //     var test = sets[i].split("~");
+        //     // // Optional, show's how switch test breaks down config message
+        //     // console.log(test);
+        //     switch (test[0][0]){
+        //         case "S":
+        //             var name = test[1];
+        //             var lo = test[3];
+        //             var hi = test[4];
+        //             var res = test[5];
+        //             slider_generate(name,lo,hi,res);
+        //             break;
+        //         case "T":
+        //             var name = test[1];
+        //             var lo = test[3];
+        //             var hi = test[4];
+        //             var color = test[5];
+        //             var type = test[0];
+        //             plot_generate(name,parseFloat(lo),parseFloat(hi),duration,color,type);
+        //             break;
+        //         case "P":
+        //             var name = test[1];
+        //             var lo = test[3];
+        //             var hi = test[4];
+        //             var label_names_untouched = test[5].split(",");
+        //             var label_names = [];
+        //             var color = test[7];
+        //             var type = test[0];
+        //             for(z=0; z < label_names_untouched.length;z++){
+        //               label_names[z] = label_names_untouched[z];
+        //             }
+        //             graph_type = test[6];
+        //             plot_generate(name,parseFloat(lo),parseFloat(hi),label_names,color,type,graph_type);
+        //             break;
+        //     } // end of switch test
+        // }
+        // build_plots();
+        // build_sliders();
 
-            }
-        }
-
-        build_plots();
-        build_sliders();
         //makes sure that scaler buttons aren't renamed
-        $('*[class^="scaler"]').attr('class','scaler');
+        // $('*[class^="scaler"]').attr('class','scaler');
         
         // We can get going
         socket.emit('all set from gui');
@@ -251,21 +301,15 @@ $(document).on('pageinit', function() {
     // // USE THIS IF YOU'RE DEPENDING ON "STARTUP" SOCKET    
     // });
 
-    ///////////////////////////
-    //                       //
-    //    Sending Sockets    //
-    //                       //
-    ///////////////////////////
+    /////////////////////END OF PAGE BUILD/////////////////////
 
-    // When the page is locked/unlocked
-    $('#lock').change(function(){
-        console.log("lock status changed");
-        var unique = 696969;
-        var val = $(this).children().children().eq(1).val();
-        socket.emit('update_'+unique,val)
-    });
+    /////////////////////////
+    //                     //
+    //    GENERAL STUFF    //
+    //                     //
+    /////////////////////////
 
-    // Does something
+    // Does something with sliders
     $('._slider').change(function(){
         var message = 'change';
         console.log(message);
@@ -273,34 +317,28 @@ $(document).on('pageinit', function() {
         socket.emit(message,{id: $(this).attr('id'), val:$(this).val()});
     });
 
-    /////////////////////////////
-    //                         //
-    //    Receiving Sockets    //
-    //                         //
-    /////////////////////////////
-
+    // Setting up a slider?
     socket.on('setup slider', function(thing){
         $("#"+thing[0]).val(parseFloat(thing[1])).slider("refresh");
     })
 
-    // socket.on('setup slider', function(thing){
-    //     $("#"+thing[0]).val(parseFloat(thing[1]));
-    // })
-
+    // This. This is very important.
+    // I have no idea what this does.
     socket.on('note', function(msg) {
         if (isActive){
-            if (HEADROOM_PRESENT){
-                h = msg.pop();
-                document.getElementById("headroom").innerHTML= "more than " + h.toString() + " microseconds";
-            }
             for (var i =0; i<msg.length; i++){
                 plot_handlers[plots[i]['name']].step(msg[i]);
             }
         }
     });
 
-    $(document).on("click", ".scaler",function(){
+    ////////////////////////////
+    //                        //
+    //    PLOT TICKS STUFF    //
+    //                        //
+    ////////////////////////////
 
+    $(document).on("click", ".scaler",function(){
         var parent = plot_handlers[$(this).parent().parent().attr("id")];
         //console.log($(this).attr("id"));
         var parid = $(this).parent().parent().attr("id")
@@ -336,5 +374,39 @@ $(document).on('pageinit', function() {
         parent.update();
     });
 
+    //////////////////////////////
+    //                          //
+    //    LISTENER FOR PLOTS    //
+    //                          //
+    //////////////////////////////
 
+    timer = setInterval(function(){
+        plot_count = 0;
+        $.each(plots, function(index, value){
+            plot_count += 1;
+        });
+        // for (var i=0; i<plot_count;i++){
+        //     var name = plots[i]['name'];
+        //     switch(plot_handlers[name].constructor.name){
+        //         case "Time_Series":
+        //             if(i%2 == 0){
+        //                 plot_handlers[name].step([mouseX]);
+        //             }
+        //             else{
+        //                 plot_handlers[name].step([mouseY]);
+        //             }
+        //             break;
+        //         case "Parallel_Plot":
+        //             plot_handlers[name].step_p([mouseX, mouseY,300]);
+        //             break;
+        //         default:
+        //             console.log("neither!");
+        //             break;
+        //     }
+        // }
+        // socket.on("update_450",function(values){
+        //     plot_handlers['FFT'].step([4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000]);
+        //     // plot_handlers['FFT'].step_p(values)
+        // }); 
+    }, 10);
 });

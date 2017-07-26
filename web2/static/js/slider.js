@@ -69,11 +69,12 @@ function build_sliders(){
 
 // Function that builds/hides the autopilot for a selected div
 function build_slider_autopilot(div_id){
+	var socket = io('http://localhost:3000');
 	var autopilot = div_id+'_autopilot';
 	// Sets up everything......
 	var setup = function(){ // Build for that div the first time.
 		$('#' + autopilot).append('<div class="autopilot-container" id="'+autopilot+'_holder"></div>');
-		var alternator = new Toggle(autopilot+'_holder',"alternate?",["no","yes"],'1069',socket);
+		var alternator = new Toggle(autopilot,"alternate?",["no","yes"],'1069',socket);
 		$('#'+autopilot+'_holder').append(alternator);
 		$('#'+autopilot+'_holder').append('Wave Type:<select name="waves"'
 			+ 'style="background-color:#f6f6f6;display:table-cell;width:100%;">'
@@ -106,7 +107,6 @@ function build_slider_autopilot(div_id){
 			+'" value="0" ' // define the value
 			+'" class="autopilot_frequency"' // define the class
 			+ ' style="background-color:#f6f6f6;display:table-cell;width:100%">');	// define the resolution (step)=
-		// $('#'+autopilot+'_holder').append('Update Autopilot:<input type="submit" value="Submit" class="ui-btn">');
 		$('#'+autopilot).hide(); // Hides it so that you don't have to press the gear button twice to make stuff happen.
 	}
 	
@@ -128,22 +128,21 @@ function build_slider_autopilot(div_id){
 		.style("border-style", "solid")
 		.style("bottom","7px")
 		.style("left", "6px")
-		.attr("class","triangle");
+		.attr("id",autopilot+"_triangle");
 	}
 	// Deals with making the thingy dissapear/appear
 	if ( $('#'+autopilot).is(':visible') ){
 		$('#'+autopilot).hide();
-		$('.triangle').hide();
+		$('#'+autopilot+'_triangle').hide();
 	} else {
 		$('#'+autopilot).show();
-		$('.triangle').show();
+		$('#'+autopilot+'_triangle').show();
 	}
 
     var thing = new alternate(div_id); 
 
     if (socket != null){ // Whenver an on,off toggle for an alternator has been toggled, this gets triggered
         socket.on("autopilot_1069",function(div,command){
-        	console.log("It's litty");
             thing.update(div,command);
 		}); 
     };

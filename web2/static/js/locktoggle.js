@@ -1,3 +1,19 @@
+/////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                          //
+//    Slider handler                                                                        //
+//                                                                                          //
+//       Job: builds and generates sliders then updates socket with slider value changes    //
+//                                                                                          //
+//       What it needs to do: settings gear to allow specification for:                     //
+//             * sin wave generation                                                        //
+//             * square wave generation                                                     //
+//             * amplitude                                                                  //
+//             * offset                                                                     //
+//             * frequency                                                                  //
+//             * resolution                                                                 //
+//                                                                                          //
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 // Associated with THE lock toggle
 function lockToggle(div_id,title,names,unique,socket=null){
     var div_id = String(div_id);

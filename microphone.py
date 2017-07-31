@@ -128,8 +128,6 @@ class SpectrumAnalyzer:
 
     def audioinput(self):
         data = np.fromstring(self.stream.read(self.CHUNK),dtype=np.float32)
-        # ret = self.stream.read(self.CHUNK)
-        # ret = np.fromstring(ret, dtype=np.float32)
         return data
 
     def fft(self):

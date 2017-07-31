@@ -1,9 +1,10 @@
-from flask import Flask, render_template, session, request, make_response
+from flask import Flask, render_template, session, request, make_response, json, jsonify, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room,close_room, rooms, disconnect
 import glob
-import json
+# import json
 import math
 import numpy as np
+import os
 import pyaudio
 from threading import Thread, Lock
 import time
@@ -114,23 +115,6 @@ elif async_mode == 'gevent':
 # '''
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#Start up Flask server:
-app = Flask(__name__, template_folder = './',static_url_path='/static')
-app.config['SECRET_KEY'] = 'secret!' #shhh don't tell anyone. Is a secret
-socketio = SocketIO(app, async_mode = async_mode)
-thread = None
-
-def dataThread():
-    pass
-    # unique = 123
-    # count = 0
-    # while True:
-    #     time.sleep(0.02)
-    #     count +=1
-    #     if count == 400:
-    #         socketio.emit('update_{}'.format(unique),'Blue')
-    #         print('sending')
-    #         count = 0
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##
 #####################################
@@ -515,17 +499,38 @@ def dataThread():
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#####################
-##                 ##
-##    NEW STUFF    ##
-##                 ##
-#####################
+
+########################
+##                    ##
+##    SERVER STUFF    ##
+##                    ##
+########################
+
+
+#Start up Flask server:
+app = Flask(__name__, template_folder = './',static_url_path='/static')
+app.config['SECRET_KEY'] = 'secret!' #shhh don't tell anyone. Is a secret
+socketio = SocketIO(app, async_mode = async_mode)
+thread = None
+
+def dataThread():
+    pass
+    # unique = 123
+    # count = 0
+    # while True:
+    #     time.sleep(0.02)
+    #     count +=1
+    #     if count == 400:
+    #         socketio.emit('update_{}'.format(unique),'Blue')
+    #         print('sending')
+    #         count = 0
 
 # Startup has occured
 @app.route('/')
 def index():
     global thread
     global fft
+    global data
     print ("A user connected")
     if thread is None:
         thread = Thread(target=dataThread)
@@ -534,7 +539,28 @@ def index():
     fft = Thread(target=micThread)
     fft.daemon = True
     # fft.start()
+    # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    # print(SITE_ROOT)
+    # json_url = os.path.join(SITE_ROOT, "static/json", "config.json")
+    # # print(json_url)
+    # data = json.load(open(json_url))
     return render_template('pages/main.html')
+    # return render_template('pages/main.html', data=data)
+
+
+# Do config stuff
+@app.route('/config', methods=['GET', 'POST'])
+def config():
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(SITE_ROOT, "static/json", "config.json")
+    data = json.load(open(json_url))
+    # return type(data)
+    return jsonify(data)
+    # return "Yo."
+
+@app.route('/ike')
+def shit():
+    print("Yo, Ike was here fam")
 
 @app.route('/generate')
 def configGenerate():

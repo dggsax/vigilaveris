@@ -1,0 +1,48 @@
+[
+    {
+        "slider": [
+            {
+                "name": "ToneGenerator",
+                "low": -1000,
+                "high": 1000,
+                "resolution": 1
+            },
+            {
+                "name": "Joe",
+                "low": -200,
+                "high": 200,
+                "resolution": 1
+            }
+        ]
+    },
+    {
+        "timeseries": [
+            {
+                "title": "dB",
+                "low": 0,
+                "high": 10,
+                "color": "green"
+            }
+
+        ]
+    },
+    {
+        "parallel": [
+            {
+                "title": "FFT",
+                "low": -100,
+                "high": 10000,
+                "color": "red",
+                "type": "line"
+            },
+            {
+                "title": "AveragedFFT",
+                "low": -100,
+                "high": 10000,
+                "color": "green",
+                "type": "line"
+            }
+        ]
+    }
+]
+

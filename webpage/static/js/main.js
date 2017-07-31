@@ -117,6 +117,7 @@ $(document).on('pageinit', function() {
     //Connect/Disconnect to Serial Port
     $('#connect').click(function(){
         hootenanny();
+        // NOTE: remember to uncomment the below two lines for stuff
         // $("#drag_container").shapeshift();
         // $("#drag_container").trigger("ss-destroy");
         if($(this).text() != 'Connected (Click to Disconnect)'){
@@ -125,39 +126,6 @@ $(document).on('pageinit', function() {
         }else{
             socket.emit('serial disconnect request');
         }
-        // below is wei's stuff.
-        // //stepping the graphs, currently feeds them mouse coordinates
-        // var mouseX, mouseY;
-        // $(document).mousemove(function(e){
-        //   mouseX = e.pageX;
-        //   mouseY = e.pageY;
-        // });
-        // plot_count = 0;
-        // timer = setInterval(function(){
-        //     plot_count = 0;
-        //     $.each(plots, function(index, value){
-        //         plot_count += 1;
-        //     });
-        //     for (var i=0; i<plot_count;i++){
-        //         var name = plots[i]['name'];
-        //         switch(plot_handlers[name].constructor.name){
-        //             case "Time_Series":
-        //                 if(i%2 == 0){
-        //                     plot_handlers[name].step([mouseX]);
-        //                 }
-        //                 else{
-        //                     plot_handlers[name].step([mouseY]);
-        //                 }
-        //                 break;
-        //             case "Parallel_Plot":
-        //                 plot_handlers[name].step_p([mouseX, mouseY,300]);
-        //                 break;
-        //             default:
-        //                 console.log("neither!");
-        //                 break;
-        //         }
-        //     }
-        // }, 10);
     });
 
     // Update #connect button to connected on return socket from server
@@ -212,42 +180,58 @@ $(document).on('pageinit', function() {
         //    JSON INTERACTION    //
         //                        //
         ////////////////////////////
-        
-        // $.getJSON( "/static/json/test.json", function( data ) {
-        //     console.log( "success" );
-        //   // console.log("it's so lit y'all");
-        //   // var items = [];
-        //   // $.each( data, function( key, val ) {
-        //   //   // items.push( "<li id='" + key + "'>" + val + "</li>" );
-        //   //   console.log(key,val);
-        //   // });
-         
-        //   // $( "<ul/>", {
-        //   //   "class": "my-new-list",
-        //   //   html: items.join( "" )
-        //   // }).appendTo( "body" );
-        // });
 
-        function loadJSON(callback) {
-            var xobj = new XMLHttpRequest();
-            xobj.overrideMimeType("application/json");
-            xobj.open('GET', './config.json', true);
-            xobj.onreadystatechange = function() {
-                if (xobj.readyState == 4 && xobj.status == "200") {
-                    // .open will NOT return a value but simply returns undefined in async mode so use a callback
-                    callback(xobj.responseText);
+        // Probably unecessarily complicated function to fetch json.
+        function fetchJSONFile(path, callback) {
+            var httpRequest = new XMLHttpRequest();
+            httpRequest.onreadystatechange = function() {
+                if (httpRequest.readyState === 4) {
+                    if (httpRequest.status === 200) {
+                        var data = JSON.parse(httpRequest.responseText);
+                        if (callback) callback(data);
+                    }
                 }
-            }
-            xobj.send(null);
+            };
+            httpRequest.open('GET', path);
+            httpRequest.send(); 
         }
-        loadJSON(function(response) {
-            // Do Something with the response e.g.
-            jsonresponse = JSON.parse(response);
-            console.log(jsonresponse)
-            // Assuming json data is wrapped in square brackets as Drew suggests
-            //console.log(jsonresponse[0].name);
 
+        // Fetch the configuration
+        fetchJSONFile('/config', function(data){
+            // Send to processing
+            processConfig(data);
         });
+
+        // Process the configuration
+        function processConfig(config){
+            for(var position in config){
+                // The Part of config we are at
+                var key = Object.keys(config[position])[0];
+                // The number of objects in that config part
+                var length = config[position][key].length;
+                // Object of arrays of each module type
+                var module = config[position][key];
+                // Do the thing
+                switch (key){
+                    case "slider":
+                        for(i = 0; i < length; i++){
+                            slider = module[i];
+                            slider_generate(slider.name,slider.low,slider.high,slider.resolution);
+                        }
+                        break;
+                    // case "timeseries":
+                    //     for(i = 0; i < length; i++){
+                    //         console.log(module[i]);
+                    //     }
+                    //     break;
+                    // case "parallel":
+                    //     for(i = 0; i < length; i++){
+                    //         console.log(module[i]);
+                    //     }
+                    //     break;
+                };
+            }
+        }
         // for (var i = 0;  i < sets.length; i++){
         //     // // Optional
         //     // console.log(sets[i]);
@@ -286,8 +270,8 @@ $(document).on('pageinit', function() {
         //             break;
         //     } // end of switch test
         // }
-        // build_plots();
-        // build_sliders();
+        build_plots();
+        build_sliders();
 
         //makes sure that scaler buttons aren't renamed
         // $('*[class^="scaler"]').attr('class','scaler');
@@ -373,40 +357,4 @@ $(document).on('pageinit', function() {
         }
         parent.update();
     });
-
-    //////////////////////////////
-    //                          //
-    //    LISTENER FOR PLOTS    //
-    //                          //
-    //////////////////////////////
-
-    timer = setInterval(function(){
-        plot_count = 0;
-        $.each(plots, function(index, value){
-            plot_count += 1;
-        });
-        // for (var i=0; i<plot_count;i++){
-        //     var name = plots[i]['name'];
-        //     switch(plot_handlers[name].constructor.name){
-        //         case "Time_Series":
-        //             if(i%2 == 0){
-        //                 plot_handlers[name].step([mouseX]);
-        //             }
-        //             else{
-        //                 plot_handlers[name].step([mouseY]);
-        //             }
-        //             break;
-        //         case "Parallel_Plot":
-        //             plot_handlers[name].step_p([mouseX, mouseY,300]);
-        //             break;
-        //         default:
-        //             console.log("neither!");
-        //             break;
-        //     }
-        // }
-        // socket.on("update_450",function(values){
-        //     plot_handlers['FFT'].step([4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000]);
-        //     // plot_handlers['FFT'].step_p(values)
-        // }); 
-    }, 10);
 });

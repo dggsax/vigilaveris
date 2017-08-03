@@ -216,7 +216,7 @@ $(document).on('pageinit', function() {
                     case "slider":
                         for(i = 0; i < length; i++){
                             slider = module[i];
-                            slider_generate(slider.name,slider.low,slider.high,slider.resolution);
+                            slider_generate( slider.name, slider.low, slider.high, slider.resolution );
                         }
                         break;
                     // case "timeseries":

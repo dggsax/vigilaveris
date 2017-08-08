@@ -52,6 +52,14 @@ var datapoints = 100
 var isActive;
 $(document).on('pageinit', function() {
 
+    var sliders = {
+        length: 0,
+        addElem: function addElem(elem) {
+            // obj.length is automatically incremented 
+            // every time an element is added.
+            [].push.call(this, elem);
+        }
+    };
     //Handle sockets with server:
     var socket = io('http://localhost:3000');
 
@@ -200,6 +208,8 @@ $(document).on('pageinit', function() {
         fetchJSONFile('/config', function(data){
             // Send to processing
             processConfig(data);
+            build_plots();
+            build_sliders();
         });
 
         // Process the configuration
@@ -270,8 +280,7 @@ $(document).on('pageinit', function() {
         //             break;
         //     } // end of switch test
         // }
-        build_plots();
-        build_sliders();
+        
 
         //makes sure that scaler buttons aren't renamed
         // $('*[class^="scaler"]').attr('class','scaler');

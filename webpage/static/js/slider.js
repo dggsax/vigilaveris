@@ -21,21 +21,6 @@ var socket = io('http://localhost:3000');
 
 var sliders = new Array();
 
-//////////////////////////
-// var sliders = {
-//     length: 0,
-//     addElem: function addElem(elem) {
-//         // obj.length is automatically incremented 
-//         // every time an element is added.
-//         // [].push.call(this, JSON.stringify(elem));
-//         [].push.call(this, elem);
-//     }
-// };
-
-// sliders.addElem({'name':'Yolo','lit':'yolo'});
-//////////////////////////
-
-sliders.push( {'name': 'rod', 'obj':'jesus'} );
 // Generate html for sliders
 function slider_generate(name,min,max,resolution){
 	var newb = document.createElement("div");
@@ -71,7 +56,6 @@ function slider_generate(name,min,max,resolution){
 	$(newb).append(slider);
 	$(newb).append('<i class="fa fa-cog fa-2x slider-item slider-settings" aria-hidden="true" id="' + name + '"></i>');
 	$(newb).append('<div id="'+ name +'_autopilot"></div>');
-	// sliders.addElem(Object.{'name': name, 'obj':newb});
 	sliders.push({'name': name, 'obj':newb});
 
 };

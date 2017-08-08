@@ -237,15 +237,15 @@ $(document).on('pageinit', function() {
                     case "timeseries":
                         for(i = 0; i < length; i++){
                             timeseries = module[i]
-                            plot_generate(timeseries.name,parseFloat(timeseries.lo),parseFloat(timeseries.hi),100,timeseries.color,timeseries.type);
+                            plot_generate(timeseries.name,parseFloat(timeseries.low),parseFloat(timeseries.high),100,timeseries.color,timeseries.type);
                         }
                         break;
                     case "parallel":
                         for(i = 0; i < length; i++){
                             parallel = module[i]
-                            plot_generate(parallel.name,parseFloat(parallel.lo),parseFloat(parallel.hi),parallel.label_names,parallel.color,parallel.type,parallel.graph_type);
+                            console.log(parallel.label_names.split(','));
+                            plot_generate(parallel.name,parseFloat(parallel.low),parseFloat(parallel.high),parallel.label_names.split(','),parallel.color,parallel.type,parallel.graph_type);
                         }
-
                         break;
                 };
             }
@@ -341,7 +341,6 @@ $(document).on('pageinit', function() {
 
     $(document).on("click", ".scaler",function(){
         var parent = plot_handlers[$(this).parent().parent().attr("id")];
-        //console.log($(this).attr("id"));
         var parid = $(this).parent().parent().attr("id")
         switch ($(this).attr("id")){
             case parid+"VM":

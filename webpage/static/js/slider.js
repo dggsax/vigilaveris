@@ -18,7 +18,25 @@
 var socket = io('http://localhost:3000');
 
 // Function that generates sliders and stores them into an array
+
 var sliders = new Array();
+
+//////////////////////////
+// var sliders = {
+//     length: 0,
+//     addElem: function addElem(elem) {
+//         // obj.length is automatically incremented 
+//         // every time an element is added.
+//         // [].push.call(this, JSON.stringify(elem));
+//         [].push.call(this, elem);
+//     }
+// };
+
+// sliders.addElem({'name':'Yolo','lit':'yolo'});
+//////////////////////////
+
+sliders.push( {'name': 'rod', 'obj':'jesus'} );
+// Generate html for sliders
 function slider_generate(name,min,max,resolution){
 	var newb = document.createElement("div");
 	$(newb).addClass("slider-container draggable");
@@ -51,21 +69,15 @@ function slider_generate(name,min,max,resolution){
 	$(animated_slider).append(slider_dial);
 	$(slider).append(animated_slider);
 	$(newb).append(slider);
-	$(newb).append('<i class="fa fa-cog fa-2x slider-item slider-settings" aria-hidden="true" id="' + name + '"></i>')
-	$(newb).append('<div id="'+ name +'_autopilot"></div>')
+	$(newb).append('<i class="fa fa-cog fa-2x slider-item slider-settings" aria-hidden="true" id="' + name + '"></i>');
+	$(newb).append('<div id="'+ name +'_autopilot"></div>');
+	// sliders.addElem(Object.{'name': name, 'obj':newb});
 	sliders.push({'name': name, 'obj':newb});
+
 };
 
 // Function that builds the sliders
 function build_sliders(){
-	console.log("The length of the sliders array is: " + String(sliders.length));
-	console.log(sliders);
-	var thing = Object.getOwnPropertyNames(sliders)[0];
-	console.log(thing);
-	console.log(sliders.thing);
-	for (var stuff in sliders){
-		console.log(stuff);
-	}
 	for (var i = 0; i < sliders.length; i++){
 		var slider_div = document.getElementById("drag_container");	
 		$(sliders[i]['obj']).appendTo($(slider_div));

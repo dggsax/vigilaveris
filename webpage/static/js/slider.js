@@ -73,6 +73,7 @@ function build_sliders(){
 // Function that builds/hides the autopilot for a selected div
 function build_slider_autopilot(div_id){
 	var socket = io('http://localhost:3000');
+	
 	var autopilot = div_id+'_autopilot';
 	// Sets up everything......
 	var setup = function(){ // Build for that div the first time.

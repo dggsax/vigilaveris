@@ -125,9 +125,7 @@ $(document).on('pageinit', function() {
     //Connect/Disconnect to Serial Port
     $('#connect').click(function(){
         hootenanny();
-        // NOTE: remember to uncomment the below two lines for stuff
-        // $("#drag_container").shapeshift();
-        // $("#drag_container").trigger("ss-destroy");
+        
         if($(this).text() != 'Connected (Click to Disconnect)'){
             socket.emit('serial connect request',{state: ALREADY_BUILT});
             isActive = true;
@@ -208,8 +206,15 @@ $(document).on('pageinit', function() {
         fetchJSONFile('/config', function(data){
             // Send to processing
             processConfig(data);
+            
+            // do the necessary building
             build_plots();
             build_sliders();
+
+            // Ugh. Make stuff look goodly
+            $('*[class^="scaler"]').attr('class','scaler');
+            $("#drag_container").shapeshift();
+            $("#drag_container").trigger("ss-destroy");
         });
 
         // Process the configuration
@@ -229,16 +234,19 @@ $(document).on('pageinit', function() {
                             slider_generate( slider.name, slider.low, slider.high, slider.resolution );
                         }
                         break;
-                    // case "timeseries":
-                    //     for(i = 0; i < length; i++){
-                    //         console.log(module[i]);
-                    //     }
-                    //     break;
-                    // case "parallel":
-                    //     for(i = 0; i < length; i++){
-                    //         console.log(module[i]);
-                    //     }
-                    //     break;
+                    case "timeseries":
+                        for(i = 0; i < length; i++){
+                            timeseries = module[i]
+                            plot_generate(timeseries.name,parseFloat(timeseries.lo),parseFloat(timeseries.hi),100,timeseries.color,timeseries.type);
+                        }
+                        break;
+                    case "parallel":
+                        for(i = 0; i < length; i++){
+                            parallel = module[i]
+                            plot_generate(parallel.name,parseFloat(parallel.lo),parseFloat(parallel.hi),parallel.label_names,parallel.color,parallel.type,parallel.graph_type);
+                        }
+
+                        break;
                 };
             }
         }
@@ -283,7 +291,7 @@ $(document).on('pageinit', function() {
         
 
         //makes sure that scaler buttons aren't renamed
-        // $('*[class^="scaler"]').attr('class','scaler');
+        
         
         // We can get going
         socket.emit('all set from gui');

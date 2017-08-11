@@ -18,14 +18,14 @@
 var socket = io('http://localhost:3000');
 
 // Function that generates sliders and stores them into an array
-
 var sliders = new Array();
 
 // Generate html for sliders
 function slider_generate(name,min,max,resolution){
+	var time = new Date();
 	var newb = document.createElement("div");
 	$(newb).addClass("slider-container draggable");
-	$(newb).attr('id',name);
+	$(newb).attr('id',name+'_div');
 	$(newb).append('<label class="slider-item" style="border:0px solid red" for="'+name+'">'+name+':</label>'); // label as slider item
 	var slider = document.createElement("div");
 	$(slider).addClass("ui-slider slider-item"); // slider as slider item
@@ -54,10 +54,9 @@ function slider_generate(name,min,max,resolution){
 	$(animated_slider).append(slider_dial);
 	$(slider).append(animated_slider);
 	$(newb).append(slider);
-	$(newb).append('<i class="fa fa-cog fa-2x slider-item slider-settings" aria-hidden="true" id="' + name + '"></i>');
+	$(newb).append('<i class="fa fa-cog fa-2x slider-item slider-settings cogfor-'+name+'" aria-hidden="true" id="' + name + '"></i>');
 	$(newb).append('<div id="'+ name +'_autopilot"></div>');
 	sliders.push({'name': name, 'obj':newb});
-
 };
 
 // Function that builds the sliders
@@ -66,14 +65,14 @@ function build_sliders(){
 		var slider_div = document.getElementById("drag_container");	
 		$(sliders[i]['obj']).appendTo($(slider_div));
 		$(sliders[i]['obj']).children().children().eq(1).remove("div"); // removing extra input field
-		$(slider_div).appendTo($("#drag_container")).trigger("create");
+		$(slider_div).appendTo($("#drag_container")).trigger("create");	
     }
 };
 
 // Function that builds/hides the autopilot for a selected div
 function build_slider_autopilot(div_id){
 	var socket = io('http://localhost:3000');
-	
+
 	var autopilot = div_id+'_autopilot';
 	// Sets up everything......
 	var setup = function(){ // Build for that div the first time.
@@ -118,7 +117,7 @@ function build_slider_autopilot(div_id){
 	if ( $('#'+autopilot).is(':empty')) { // Build the first time, then don't touch it....
 		setup();
 
-		d3.select("#main_area").select("#"+autopilot)
+		d3.select("#drag_container").select("#"+autopilot)
 		.style("top","110px").style("position","absolute")
 		.style("z-index","999999")
 		.style("background-color",("#f4f4f4"));
@@ -126,12 +125,13 @@ function build_slider_autopilot(div_id){
 		d3.select("#" + div_id).append("div").style("height","0px")
 		.style("width","0px")
 		.style("position","relative")
-		.style("bottom","100px")
+		// .style("bottom","100px")
+		.style("bottom","10px")
 		.style("border-width", "10px")
 		.style("border-color", "transparent transparent black transparent")
 		.style("border-style", "solid")
-		.style("bottom","7px")
-		.style("left", "6px")
+		// .style("bottom","7px")
+		// .style("left", "6px")
 		.attr("id",autopilot+"_triangle");
 	}
 	// Deals with making the thingy dissapear/appear
@@ -145,7 +145,7 @@ function build_slider_autopilot(div_id){
 
     var thing = new alternate(div_id); 
 
-    if (socket != null){ // Whenver an on,off toggle for an alternator has been toggled, this gets triggered
+    if (socket != null){ // Whenever an on,off toggle for an alternator has been toggled, this gets triggered
         socket.on("autopilot_1069",function(div,command){
             thing.update(div,command);
 		}); 
@@ -156,8 +156,9 @@ function build_slider_autopilot(div_id){
 var intervals = [];
 // Handles the alternators.
 function alternate(div_id){
-	var label_id = String(div_id+'_slider_input'); // Unique ID for the slider value that is being updated
-	var slider_id = String(div_id+'_slider')
+	var label_id = String(div_id + '_slider_input'); // Unique ID for the slider value that is being updated
+	var slider_id = String(div_id + '_slider')
+	var gear = '.cogfor-' + div_id;
     var time = new Date();
     time.getTime();
     // Do the stuff with the stuff.
@@ -173,28 +174,33 @@ function alternate(div_id){
     		switch(wave_type){
     			case "default": // Alternate at standard rate
     				var intervalId = setInterval(function(){standard(label_id,div_id)}, Number(update_freq));
-    				console.log("hi");
     				intervals[div_id] = intervalId;
+    				$(gear).css('color','green');
     				break;
     			case "sin": // Alternate as sin wave
     				var intervalId = setInterval(function(){sin(label_id,div_id,frequency,amplitude,offset)}, Number(update_freq));
     				intervals[div_id] = intervalId;
+    				$(gear).css('color','green');
     				break;
     			case "square": // Alternate as square wave
     				var intervalId = setInterval(function(){square(label_id,div_id,frequency,amplitude,offset)}, Number(update_freq));
     				intervals[div_id] = intervalId;
+    				$(gear).css('color','green');
     				break;
     			case "triangle": // Alternate as triangle wave
     				var intervalId = setInterval(function(){triangle(label_id,div_id,frequency,amplitude,offset)}, Number(update_freq));
     				intervals[div_id] = intervalId;
+    				$(gear).css('color','green');
     				break;
     			case "sawtooth": // Alternate as sawtooth wave
     				var intervalId = setInterval(function(){sawtooth(label_id,div_id,frequency,amplitude,offset)}, Number(update_freq));
     				intervals[div_id] = intervalId;
+    				$(gear).css('color','green');
     				break;
     		}
     	} else if ( command == "no" ) {
     		clearInterval(intervals[div_id]);
+    		$(gear).css('color','black');
     	}
     }
     // For standard alternation

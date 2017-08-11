@@ -5,8 +5,21 @@
                 "name": "ToneGenerator",
                 "low": -1000,
                 "high": 1000,
+                "resolution": 1,
+                "unique": 1001
+            },
+            {
+                "name": "Joe",
+                "low": -200,
+                "high": 200,
                 "resolution": 1
             },
+            {
+                "name": "Joe",
+                "low": -200,
+                "high": 200,
+                "resolution": 1
+            },           
             {
                 "name": "Joe",
                 "low": -200,

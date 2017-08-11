@@ -11,15 +11,6 @@
 //                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////
 
-// Notes for fixing it:
-// There were a few things wrong, firstly I guess was the naming scheme for things
-// with the toggler (the thing that activates/disables autopilot). Then, would run into weird
-// socket issues. When appending socket as an argument from slider for each new toggle, it would
-// work the first time, but then would be considered as null. Fixed by defining the socket within
-// the build_slider_autopilot function in slider.js. However, this should not have been necessary.
-// However pt. 2, Javascript is weird and sometimes things just don't be like they need to be...
-// Also, for some reason the if statement on line 39 really doesn't make a difference? confusion.
-
 function Toggle(div_id,title,names,unique,socket=null){
     var div_id = String(div_id);
     var title = String(title);

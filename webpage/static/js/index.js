@@ -329,6 +329,4 @@ function CheckTables() {
     	previewButton.style.display = "none";
     	buildButton.style.display = "none";
     }
-
-
 }

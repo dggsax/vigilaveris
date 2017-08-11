@@ -51,15 +51,6 @@ $(document).on("change","select",function(){
 var datapoints = 100
 var isActive;
 $(document).on('pageinit', function() {
-
-    var sliders = {
-        length: 0,
-        addElem: function addElem(elem) {
-            // obj.length is automatically incremented 
-            // every time an element is added.
-            [].push.call(this, elem);
-        }
-    };
     //Handle sockets with server:
     var socket = io('http://localhost:3000');
 
@@ -157,9 +148,19 @@ $(document).on('pageinit', function() {
     // When the page is locked/unlocked
     $('#lock').change(function(){
         console.log("lock status changed");
-        var unique = 696969;
+        var unique = 69;
         var val = $(this).children().children().eq(1).val();
+        console.log(val);
         socket.emit('toggle_update_'+unique,val)
+    });
+
+    $(document).keypress(function(event){
+        if(String.fromCharCode(event.which) == "u"){
+            keypressLockToggle(69);
+        }
+        if(String.fromCharCode(event.which) == "r"){
+            console.log("wowowowoow");
+        }
     });
 
     ///////////////////////////////////////////
@@ -173,13 +174,15 @@ $(document).on('pageinit', function() {
         // Clean the Page
         // QUESTION: Why do they need separate containers? And why does one focus on
         // IDs and the other with classes?
-        $("#main_area").empty(); //do it this way because jquery needs to be cleaned properly
+        $("#drag_container").empty(); //do it this way because jquery needs to be cleaned properly
+        // $("#main_area").empty();
+
         var slider_container = d3.select("#main_area").append("div").attr("id","drag_container");
         var container = d3.select("#main_area").append("div").attr("class","container_graphs");
-
-        sliders = new Array();
+        
         plots = new Array();
         plot_handlers = new Array();
+        sliders = new Array();
 
         ////////////////////////////
         //                        //
@@ -209,10 +212,10 @@ $(document).on('pageinit', function() {
             
             // do the necessary building
             build_plots();
+            console.log(sliders);
             build_sliders();
 
             // Ugh. Make stuff look goodly
-            $('*[class^="scaler"]').attr('class','scaler');
             $("#drag_container").shapeshift();
             $("#drag_container").trigger("ss-destroy");
         });
@@ -243,56 +246,13 @@ $(document).on('pageinit', function() {
                     case "parallel":
                         for(i = 0; i < length; i++){
                             parallel = module[i]
-                            console.log(parallel.label_names.split(','));
                             plot_generate(parallel.name,parseFloat(parallel.low),parseFloat(parallel.high),parallel.label_names.split(','),parallel.color,parallel.type,parallel.graph_type);
                         }
                         break;
                 };
-            }
-        }
-        // for (var i = 0;  i < sets.length; i++){
-        //     // // Optional
-        //     // console.log(sets[i]);
-        //     var test = sets[i].split("~");
-        //     // // Optional, show's how switch test breaks down config message
-        //     // console.log(test);
-        //     switch (test[0][0]){
-        //         case "S":
-        //             var name = test[1];
-        //             var lo = test[3];
-        //             var hi = test[4];
-        //             var res = test[5];
-        //             slider_generate(name,lo,hi,res);
-        //             break;
-        //         case "T":
-        //             var name = test[1];
-        //             var lo = test[3];
-        //             var hi = test[4];
-        //             var color = test[5];
-        //             var type = test[0];
-        //             plot_generate(name,parseFloat(lo),parseFloat(hi),duration,color,type);
-        //             break;
-        //         case "P":
-        //             var name = test[1];
-        //             var lo = test[3];
-        //             var hi = test[4];
-        //             var label_names_untouched = test[5].split(",");
-        //             var label_names = [];
-        //             var color = test[7];
-        //             var type = test[0];
-        //             for(z=0; z < label_names_untouched.length;z++){
-        //               label_names[z] = label_names_untouched[z];
-        //             }
-        //             graph_type = test[6];
-        //             plot_generate(name,parseFloat(lo),parseFloat(hi),label_names,color,type,graph_type);
-        //             break;
-        //     } // end of switch test
-        // }
-        
-
-        //makes sure that scaler buttons aren't renamed
-        
-        
+            };
+        };
+            
         // We can get going
         socket.emit('all set from gui');
         ALREADY_BUILT = true;

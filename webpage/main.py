@@ -6,6 +6,7 @@ import math
 import numpy as np
 import os
 import pyaudio
+from random import randint
 from threading import Thread, Lock
 import time
 import serial
@@ -512,18 +513,9 @@ app = Flask(__name__, template_folder = './',static_url_path='/static')
 app.config['SECRET_KEY'] = 'secret!' #shhh don't tell anyone. Is a secret
 socketio = SocketIO(app, async_mode = async_mode)
 thread = None
-
+global identifiers
 def dataThread():
-    pass
-    # unique = 123
-    # count = 0
-    # while True:
-    #     time.sleep(0.02)
-    #     count +=1
-    #     if count == 400:
-    #         socketio.emit('update_{}'.format(unique),'Blue')
-    #         print('sending')
-    #         count = 0
+    print("yes)")
 
 # Startup has occured
 @app.route('/')
@@ -531,57 +523,92 @@ def index():
     global thread
     global fft
     global data
+
     print ("A user connected")
     if thread is None:
         thread = Thread(target=dataThread)
         thread.daemon = True
         thread.start()
-    fft = Thread(target=micThread)
-    fft.daemon = True
+    # NOTE: Leaving this oen
+    # fft = Thread(target=micThread)
+    # fft.daemon = True
     # fft.start()
-    # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    # print(SITE_ROOT)
-    # json_url = os.path.join(SITE_ROOT, "static/json", "config.json")
-    # # print(json_url)
-    # data = json.load(open(json_url))
     return render_template('pages/main.html')
-    # return render_template('pages/main.html', data=data)
 
 
-# Do config stuff
+# Return the configuration
 @app.route('/config', methods=['GET', 'POST'])
 def config():
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, "static/json", "config.json")
-    data = json.load(open(json_url))
-    # return type(data)
-    return jsonify(data)
-    # return "Yo."
+    if request.method == 'GET':
+        SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+        json_url = os.path.join(SITE_ROOT, "static/json/", "config.json")
+        checkJson(json_url)
+        config = json.load(open(json_url))
+        return jsonify(config)
+    elif request.method == 'POST':
+        print("can't really post anything yet, sorry...")
+    else:
+        print("Check your request method.")
 
-@app.route('/ike')
-def shit():
-    print("Yo, Ike was here fam")
 
+    # print(identifiers['ToneGenerator'])
+
+# Check and update identifiers in the json. plus other things
+def checkJson(json_url):
+    # Make global dictionary of ID's
+    global identifiers
+    identifiers = {}
+
+    # Open Json
+    with open(json_url, "r") as jsonFile:
+        config = json.load(jsonFile)
+
+    # Function to generate new unique identifier
+    def newUnique(n):
+        range_start = 10**(n-1)
+        range_end = (10**n)-1
+        return randint(range_start, range_end)
+
+    # List to store existing unique values
+    uniques = []
+    # Open up modules portion of config.json
+    modules = config[1]['modules']
+    for module in modules:
+        for instance in module:
+            for item in module[instance]:
+                # Check if module already has unique identifer
+                if 'unique' in item:
+                    # Appends existing identifier to uniques
+                    uniques.append(item['unique'])
+                else:
+                    # Generates new unique identifier
+                    unique = newUnique(3)
+                    # Checks if identifier hasn't already been used
+                    if unique not in uniques:
+                        # Assings identifier for that module
+                        item['unique'] = unique
+                identifiers[item['name']] = item['unique']
+
+    # Write modified json file
+    with open(json_url, "w") as jsonFile:
+        # Complicated dump so that everytime we modify the json it isn't minified
+        json.dump(config, jsonFile, sort_keys=True,indent=2,separators=(',',': '))
+
+# Arbitrary for the time being, but this will lead to the generation page
 @app.route('/generate')
 def configGenerate():
+    global identifiers
     return render_template('pages/index.html')
 
+# Universal announcer
 @socketio.on('reporting')
-def action(content):
-    unique = content['unique']
-    data = content['data']
-    # socketio.emit("{} changed to {}!".format(unique,data))
-    print("{} changed to {}!".format(unique,data))
-
-# Autopilot for sliders
-@socketio.on('reporting_1069')
-def action(content):
-    # Define variables
+def announce(content):
+    # Capture variables
     unique = content['unique']
     div = content['div']
-    data = content['data'] 
-    # Emit Variables
-    socketio.emit('autopilot_{}'.format(unique),data=(div,data))
+    data = content['data']
+    # Send variables
+    socketio.emit("announce_{}".format(unique),data=(unique,div,data))
 
 @app.route("/simple.png")
 def simple():
@@ -693,25 +720,5 @@ class SpectrumAnalyzer:
         self.spec_y = [np.sqrt(c.real ** 2 + c.imag ** 2) for c in y]
         return self.spec_y
 
-if __name__ == '__main__':
+if __name__ == '__main__' or __name__ == 'server':
     socketio.run(app, port=3000, debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

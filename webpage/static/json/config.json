@@ -1,65 +1,112 @@
 [
-    {
+  {
+    "configuration": [
+      {
+        "baud": 115200
+      }
+    ]
+  },
+  {
+    "modules": [
+      {
         "slider": [
-            {
-                "name": "ToneGenerator",
-                "low": -1000,
-                "high": 1000,
-                "resolution": 1,
-                "unique": 1001
-            },
-            {
-                "name": "Joe",
-                "low": -200,
-                "high": 200,
-                "resolution": 1
-            },
-            {
-                "name": "Joe",
-                "low": -200,
-                "high": 200,
-                "resolution": 1
-            },           
-            {
-                "name": "Joe",
-                "low": -200,
-                "high": 200,
-                "resolution": 1
-            }
+          {
+            "high": 1000,
+            "low": -1000,
+            "name": "ToneGenerator",
+            "resolution": 1,
+            "unique": 104
+          },
+          {
+            "high": 200,
+            "low": -200,
+            "name": "Joe",
+            "resolution": 1,
+            "unique": 618
+          },
+          {
+            "high": 200,
+            "low": -200,
+            "name": "Jesus",
+            "resolution": 1,
+            "unique": 251
+          },
+          {
+            "high": 200,
+            "low": -200,
+            "name": "Juan",
+            "resolution": 1,
+            "unique": 486
+          }
         ]
-    },
-    {
+      },
+      {
         "timeseries": [
-            {
-                "name": "dB",
-                "low": 0,
-                "high": 10,
-                "color": "green"
-            }
-
+          {
+            "color": "green",
+            "high": 10,
+            "low": 0,
+            "name": "dB",
+            "unique": 310
+          }
         ]
-    },
-    {
+      },
+      {
         "parallel": [
-            {
-                "name": "FFT",
-                "low": -100,
-                "high": 10000,
-                "color": "red",
-                "graph_type": "line",
-                "label_names": "jesus,estalit",
-                "type": "P"
-            },
-            {
-                "name": "AveragedFFT",
-                "low": -100,
-                "high": 10000,
-                "color": "green",
-                "graph_type": "line",
-                "label_names": "jesus,amen,hahaha",
-                "type": "P"
-            }
+          {
+            "color": "red",
+            "graph_type": "line",
+            "high": 10000,
+            "label_names": "jesus,estalit",
+            "low": -100,
+            "name": "FFT",
+            "type": "P",
+            "unique": 543
+          },
+          {
+            "color": "green",
+            "graph_type": "line",
+            "high": 10000,
+            "label_names": "jesus,amen,hahaha",
+            "low": -100,
+            "name": "AveragedFFT",
+            "type": "P",
+            "unique": 134
+          }
         ]
-    }
+      },
+      {
+        "pushbutton": [
+          {
+            "bg_color": "pink",
+            "color": "green",
+            "div_id": "Test",
+            "label": "Um",
+            "name": "Test",
+            "unique": 784
+          }
+        ]
+      },
+      {
+        "joystick": [
+          {
+            "color": "green",
+            "div_id": "rod",
+            "mode": "static",
+            "name": "jesus",
+            "size": 200,
+            "unique": 974
+          },
+          {
+            "color": "red",
+            "div_id": "kat",
+            "mode": "static",
+            "name": "jesus",
+            "size": 200,
+            "unique": 243
+          }
+        ]
+      }
+    ]
+  }
 ]
-

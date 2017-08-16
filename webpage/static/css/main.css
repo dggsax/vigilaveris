@@ -1,6 +1,5 @@
 html *
 {
-   font-family: Avenir;
    border: 0;
    align-content: center;
 }
@@ -70,7 +69,7 @@ div.slider-item {
     display: -ms-flexbox;
     display: -webkit-flex;
     display: flex;
-    display: inline-block;
+    /*display: inline-block;*/
     flex-direction: row;
 }
 
@@ -110,3 +109,33 @@ div.slider-item {
 .custom-size-toggle.ui-toggle {
     width: 1px;
 }
+
+/*
+********************************
+**                            **
+**    Deals with Joysticks    **
+**                            **
+********************************
+*/
+/*.joystick-container {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: row;
+    display: inline-block;
+}*/
+
+/*#rod {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 200px;
+    width: 200px;
+}
+#kat {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 200px;
+    width: 200px;
+}*/

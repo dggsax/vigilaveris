@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Nipple Testing</title>
+	<link rel="stylesheet" href="http://yoannmoinet.github.io/nipplejs/	stylesheets/styles.css" media="screen" title="no title" charset="utf-8">
+	<script type="text/javascript" src="../static/js/nipplejs.min.js"></script>
+</head>
+<body>
+<div id="zone_joystick"></div>
+</body>
+
+<script type="text/javascript">
+    var options = {
+        zone: document.getElementById('zone_joystick')
+    };
+    var manager = nipplejs.create(options);
+</script>
+</html>
+
+<!-- var options = {
+    zone: Element,                  // active zone
+    color: String,
+    size: Integer,
+    threshold: Float,               // before triggering a directional event
+    fadeTime: Integer,              // transition time
+    multitouch: Boolean,
+    maxNumberOfNipples: Number,     // when multitouch, what is too many?
+    dataOnly: Boolean,              // no dom element whatsoever
+    position: Object,               // preset position for 'static' mode
+    mode: String,                   // 'dynamic', 'static' or 'semi'
+    restOpacity: Number,            // opacity when not 'dynamic' and rested
+    catchDistance: Number           // distance to recycle previous joystick in
+                                    // 'semi' mode
+}; -->

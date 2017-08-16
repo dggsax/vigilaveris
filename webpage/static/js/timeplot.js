@@ -55,5 +55,4 @@ function build_plots(){
             plot_handlers[name] = new Time_Series(name+"_div",name,PLOT_WIDTH,PLOT_HEIGHT,datapoints,[min,max],1,[color], plot_count, socket=null);
         }
     }
-    console.log(plot_handlers);
 };

@@ -13,32 +13,6 @@ var HEADROOM_PRESENT = false;
 var ALREADY_BUILT = false;
 var TOGGLE_PARAM = '';
 
-/////////////////////
-//                 //
-//    Autopilot    //
-//                 //
-/////////////////////
-
-$(document).on("mouseover", ".fa-cog", function(){
-    $(this).css("background-color","#e9e9e9")
-});
-
-$(document).on("mouseleave", ".fa-cog", function(){
-    $(this).css("background-color","initial");
-});
-
-$(document).on("click",".fa-cog",function(){
-    build_slider_autopilot(this.id);
-});
-
-// Update value of input field when the enter key is selected
-$(document).on('keyup','input', function (e) {
-    if (e.keyCode == 13){
-        $(this).attr("value",$(this).val());
-        $(this).blur();
-    }
-});
-
 // Update DOM for selected option in ANY dropdown menu
 $(document).on("change","select",function(){
   $("option[value=" + this.value + "]", this)
@@ -46,7 +20,7 @@ $(document).on("change","select",function(){
   .removeAttr("selected")
 });
 
-/////////////////////END OF AUTOPILOT/////////////////////
+
 
 var datapoints = 100
 var isActive;
@@ -138,6 +112,7 @@ $(document).on('pageinit', function() {
     // Build default toggles
     var toggle_lock = new lockToggle("lock","Page Lock",["Locked","Unlocked"],69,socket);
     var toggle_freeze = new Toggle("freeze","Freeze Page?",["OFF","ON"],420,socket);
+    var test = new Slider("magic",'johnson',0,5,.1,100);
 
     // Send socket to freeze page when #freeze switch is toggled
     $('#freeze').change(function(){
@@ -208,11 +183,10 @@ $(document).on('pageinit', function() {
         // Fetch the configuration
         fetchJSONFile('/config', function(data){
             // Send to processing
-            processConfig(data);
+            processConfig(data[1]['modules']);
             
             // do the necessary building
             build_plots();
-            console.log(sliders);
             build_sliders();
 
             // Ugh. Make stuff look goodly
@@ -233,20 +207,32 @@ $(document).on('pageinit', function() {
                 switch (key){
                     case "slider":
                         for(i = 0; i < length; i++){
-                            slider = module[i];
-                            slider_generate( slider.name, slider.low, slider.high, slider.resolution );
+                            s = module[i];
+                            slider_generate(s.name,s.low,s.high,s.resolution,s.unique);
                         }
                         break;
                     case "timeseries":
                         for(i = 0; i < length; i++){
-                            timeseries = module[i]
-                            plot_generate(timeseries.name,parseFloat(timeseries.low),parseFloat(timeseries.high),100,timeseries.color,timeseries.type);
+                            t = module[i]
+                            plot_generate(t.name,parseFloat(t.low),parseFloat(t.high),100,t.color,t.type);
                         }
                         break;
                     case "parallel":
                         for(i = 0; i < length; i++){
-                            parallel = module[i]
-                            plot_generate(parallel.name,parseFloat(parallel.low),parseFloat(parallel.high),parallel.label_names.split(','),parallel.color,parallel.type,parallel.graph_type);
+                            p = module[i]
+                            plot_generate(p.name,parseFloat(p.low),parseFloat(p.high),p.label_names.split(','),p.color,p.type,p.graph_type);
+                        }
+                        break;
+                    case "pushbutton":
+                        for(i = 0; i < length; i++){
+                            p = module[i]
+                            PushButton(p.div_id,p.label,p.color,p.bg_color,p.unique,socket);
+                        }
+                        break;
+                    case "joystick":
+                        for(i = 0; i < length; i++){
+                            j = module[i]
+                            Joystick(j.div_id,j.name,j.mode,j.size,j.color,j.catchdistance);
                         }
                         break;
                 };
@@ -273,7 +259,6 @@ $(document).on('pageinit', function() {
     // Does something with sliders
     $('._slider').change(function(){
         var message = 'change';
-        console.log(message);
         console.log($(this).attr('id'),$(this).val());
         socket.emit(message,{id: $(this).attr('id'), val:$(this).val()});
     });

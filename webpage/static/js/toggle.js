@@ -25,15 +25,13 @@ function Toggle(div_id,title,names,unique,socket=null){
         $("#"+div_id+"_toggler_holder").append("<select name=\""+ div_id+"_toggler" +"\" id=\""+div_id+"_toggler"+"\" data-role=\"slider\"><option value=\""+names[0]+"\">"+names[0]+"</option><option value=\""+names[1]+"\">"+names[1]+" </option></select>");
         built = true;
         $("#"+div_id+"_toggler_holder").trigger("create");
-        console.log("#"+div_id+"_toggler");
     }
     if ( ! built ) { 
         setup();
     };
-    if (socket != null){
+    if ( socket != null ){
         $('#'+div_id+"_toggler").on('change',function(){
-            console.log('reporting_'+unique, {'unique':unique, 'div': div_id+'_holder', 'data':$(this).val()});
-            socket.emit('reporting_'+unique, {'unique':unique, 'div': div_id+'_holder', 'data':$(this).val()});
+            socket.emit('reporting', {'unique':unique, 'div': div_id+'_holder', 'data':$(this).val()});
         });
     };
 };
